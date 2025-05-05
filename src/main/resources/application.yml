@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: transaction-bff
+  redis:
+    port: 6379
+    host: localhost
+springdoc:
+    swagger-ui:
+      path: /swagger-ui.html

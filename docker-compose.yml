@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+  bff-redis:
+    image: redis
+    container_name: bff-redis
+    ports:
+      - "6379:6379"
