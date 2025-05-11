@@ -3,6 +3,7 @@ package com.coffeandit.transactionbff.api;
 import com.coffeandit.transactionbff.domain.TransactionService;
 import com.coffeandit.transactionbff.dto.RequestTransactionDto;
 import com.coffeandit.transactionbff.dto.TransactionDto;
+import com.coffeandit.transactionbff.exceptions.TransactionNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -24,7 +25,7 @@ import java.util.Optional;
 @Tag(name = "/transaction", description = "Grupo de API's para manipulação de transações financeiras")
 public class TransactionController {
 
-    private TransactionService transactionService;
+    private final TransactionService transactionService;
 
     public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
@@ -42,10 +43,10 @@ public class TransactionController {
 
         final Optional<TransactionDto> dto = transactionService.save(requestTransactionDto);
 
-        if(dto.isPresent()){
+        if (dto.isPresent()) {
             return Mono.just(dto.get());
         }
-         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find resource");
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find resource");
 
     }
 
@@ -57,14 +58,14 @@ public class TransactionController {
     @Parameters(value = {@Parameter(name = "id", in = ParameterIn.PATH)})
     @ResponseBody
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<TransactionDto> buscarTransacao(@PathVariable("id") final String id) {
+    public Mono<TransactionDto> findById(@PathVariable("id") final String id) {
 
         final Optional<TransactionDto> dto = transactionService.findById(id);
 
-        if(dto.isPresent()){
+        if (dto.isPresent()) {
             return Mono.just(dto.get());
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find resource");
+        throw new TransactionNotFoundException("Unable to find resource");
     }
 
     @Operation(description = "API para remover as transações persistidas")
