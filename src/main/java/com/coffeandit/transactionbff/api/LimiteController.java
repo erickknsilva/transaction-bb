@@ -1,5 +1,6 @@
 package com.coffeandit.transactionbff.api;
 
+import com.coffeandit.transactionbff.domain.LimiteService;
 import com.coffeandit.transactionbff.dto.LimiteDiario;
 import com.coffeandit.transactionbff.feign.LimiteClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,17 +13,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class LimiteController {
 
 
-    private final LimiteClient limiteClient;
+    private final LimiteService limiteService;
 
-    public LimiteController(LimiteClient limiteClient) {
-        this.limiteClient = limiteClient;
+    public LimiteController(LimiteService limiteService) {
+        this.limiteService = limiteService;
     }
 
     @GetMapping("/{agencia}/{conta}")
     public LimiteDiario findByLimiteDiario(@PathVariable("agencia") final Long agencia,
                                            @PathVariable("conta") final Long conta) {
 
-        return limiteClient.findByLimiteDiario(agencia, conta);
+        return limiteService.findByLimiteDiario(agencia, conta);
     }
+
+
 
 }
