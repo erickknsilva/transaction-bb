@@ -23,7 +23,7 @@ public class LimiteService {
     private LimiteClient limiteClient;
 
     @Autowired
-    private CircuitBreaker countCircuitBreaker;
+    private CircuitBreaker timeCircuitBreaker;
 
 
     public LimiteDiario findByLimiteDiario(final Long agencia, final Long conta) {
@@ -33,12 +33,12 @@ public class LimiteService {
 
     private Supplier<LimiteDiario> fallback(final Long agencia, final Long conta) {
 
-        var result = countCircuitBreaker
+        var result = timeCircuitBreaker
                 .decorateSupplier(() -> limiteClient.findByLimiteDiario(agencia, conta));
 
         return Decorators
                 .ofSupplier(result)
-                .withCircuitBreaker(countCircuitBreaker)
+                .withCircuitBreaker(timeCircuitBreaker)
                 .withFallback(List.of(CallNotPermittedException.class),
                         e -> this.getStaticLimite())
                 .decorate();

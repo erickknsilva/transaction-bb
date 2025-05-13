@@ -1,15 +1,17 @@
 server:
   port: 8080
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
 spring:
   application:
     name: transaction-bff
   redis:
     port: 6379
     host: localhost
-springdoc:
-    swagger-ui:
-      path: /swagger-ui.html
+    timeout: 5000
 
 limites:
   url: http://localhost:8081/limite-diario
