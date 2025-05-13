@@ -4,13 +4,12 @@ package com.coffeandit.transactionbff.config;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
-@Slf4j
 @Component
 public class CircuitBreakerConfiguration {
 
@@ -36,15 +35,14 @@ public class CircuitBreakerConfiguration {
 
     }
 
-
     @Bean
     public CircuitBreaker timeCircuitBreaker() {
 
         CircuitBreakerConfig circuitBreakerConfig = CircuitBreakerConfig.custom()
                 .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED) // janela baseada em tempo
-                .minimumNumberOfCalls(5) // chamadas mínimas para avaliar falha
                 .slidingWindowSize(10) // duração da janela em segundos
-                .failureRateThreshold(75.0F) // % de falhas para abrir o circuito
+                .minimumNumberOfCalls(5) // chamadas mínimas para avaliar falha
+                .failureRateThreshold(55.0F) // % de falhas para abrir o circuito
                 .waitDurationInOpenState(Duration.ofMillis(1500)) // tempo em estado OPEN
                 .writableStackTraceEnabled(false) // desativa stacktrace por performance
                 .build();
