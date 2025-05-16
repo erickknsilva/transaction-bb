@@ -12,6 +12,16 @@ spring:
     port: 6379
     host: localhost
     timeout: 5000
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      client-id: ${spring.application.name}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      transaction-id-prefix: ${spring.application.name}
 
 limites:
   url: http://localhost:8081/limite-diario
+
+app:
+  topic: transaction
