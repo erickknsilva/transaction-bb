@@ -11,10 +11,8 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -39,14 +37,9 @@ public class TransactionController {
             @ApiResponse(responseCode = "404", description = "Recurso não encontrado")
     })
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<TransactionDto> enviarTransacao(@RequestBody final RequestTransactionDto requestTransactionDto) {
+    public Mono<RequestTransactionDto> enviarTransacao(@RequestBody final RequestTransactionDto requestTransactionDto) {
 
-        final Optional<TransactionDto> dto = transactionService.save(requestTransactionDto);
-
-        if (dto.isPresent()) {
-            return Mono.just(dto.get());
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find resource");
+        return transactionService.save(requestTransactionDto);
 
     }
 
