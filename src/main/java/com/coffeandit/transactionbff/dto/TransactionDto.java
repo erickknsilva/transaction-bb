@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ public class TransactionDto {
     @Schema(description = "Data/hora/minuto e segundo da transação")
     @JsonFormat(pattern =  "yyyy-MM-dd'T'HH:mm:ss")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime data;
+    private LocalDate data;
 
     @NotNull(message = "Informa a conta de origem da transação.")
     @Schema(description = "Conta de origem da transação.")
@@ -55,5 +56,9 @@ public class TransactionDto {
 
     @Schema(description = "Situação da transação")
     private SituacaoEnum situacao;
+
+    public void situacaoNaoAnalisa(){
+        setSituacao(SituacaoEnum.NAO_ANALISADA);
+    }
 
 }

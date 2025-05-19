@@ -1,7 +1,6 @@
 package com.coffeandit.transactionbff.kafkaConfig;
 
 import com.coffeandit.transactionbff.dto.RequestTransactionDto;
-import com.coffeandit.transactionbff.dto.TransactionDto;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,9 +13,11 @@ import java.util.Map;
 public class ReactiveKafkaProducerConfig {
 
     @Bean
-    public ReactiveKafkaProducerTemplate<String, RequestTransactionDto> reactiveKafkaProducerTemplate(final KafkaProperties kafkaProperties) {
+    public ReactiveKafkaProducerTemplate<String, RequestTransactionDto> reactiveKafkaProducerTemplate
+                                                                                (final KafkaProperties kafkaProperties) {
         Map<String, Object> props = kafkaProperties.buildProducerProperties();
         return new ReactiveKafkaProducerTemplate<String, RequestTransactionDto>(SenderOptions.create(props));
     }
+
 }
 

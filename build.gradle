@@ -43,7 +43,7 @@ dependencies {
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'io.projectreactor.kafka:reactor-kafka'
 
-
+//    implementation 'io.github.openfeign:feign-jackson'
 
 
     compileOnly 'org.projectlombok:lombok'

@@ -1,10 +1,11 @@
 package com.coffeandit.transactionbff.domain;
 
 import com.coffeandit.transactionbff.dto.RequestTransactionDto;
+import com.coffeandit.transactionbff.dto.SituacaoEnum;
 import com.coffeandit.transactionbff.dto.TransactionDto;
 import com.coffeandit.transactionbff.redis.TransactionRedisRepository;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
@@ -13,8 +14,10 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.SignalType;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 
 
@@ -39,14 +42,30 @@ public class TransactionService {
 
     @Retryable(retryFor = QueryTimeoutException.class, maxAttempts = 5, backoff = @Backoff(delay = 100, multiplier = 1.1))
     @Transactional
-    public Optional<TransactionDto> save(final RequestTransactionDto requestTransactionDto) {
-        requestTransactionDto.setData(LocalDateTime.now());
-        //ativa o kafka
-        reactiveKafkaProducerTemplate.send(topic, requestTransactionDto)
-                .doOnSuccess(voidSenderResult -> log.info(voidSenderResult.toString()))
-                .subscribe();
+    public Mono<RequestTransactionDto> save(final RequestTransactionDto requestTransactionDto) {
 
-        return Optional.of(redisRepository.save(requestTransactionDto));
+        return Mono.fromCallable(() -> {
+
+                    requestTransactionDto.setData(LocalDate.now());
+                    requestTransactionDto.situacaoNaoAnalisa();
+                    return redisRepository.save(requestTransactionDto);
+
+                }).doOnError(throwable -> {
+                    log.info(throwable.getMessage(), throwable);
+                    throw new ResourceNotFoundException("Recurso não encontrado.");
+                })
+                .doOnSuccess(transaction -> {
+                    log.info("Transação enviada com sucesso {}", transaction);
+                    //ativa o kafka
+                    reactiveKafkaProducerTemplate.send(topic, requestTransactionDto)
+                            .doOnSuccess(voidSenderResult -> log.info(voidSenderResult.toString()))
+                            .subscribe();
+                })
+                .doFinally(signalType -> {
+                    if(signalType.compareTo(SignalType.ON_COMPLETE) == 0){
+                        log.info("Mensagem enviada para o kafka com sucesso 2 {}", requestTransactionDto);
+                    }
+                });
     }
 
 
