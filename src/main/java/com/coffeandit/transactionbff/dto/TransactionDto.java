@@ -37,7 +37,7 @@ public class TransactionDto {
     private BigDecimal valor;
 
     @Schema(description = "Data/hora/minuto e segundo da transação")
-    @JsonFormat(pattern =  "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern =  "yyyy-MM-dd")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDate data;
 

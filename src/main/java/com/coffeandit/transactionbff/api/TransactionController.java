@@ -1,6 +1,7 @@
 package com.coffeandit.transactionbff.api;
 
 import com.coffeandit.transactionbff.domain.TransactionService;
+import com.coffeandit.transactionbff.dto.LimiteDiario;
 import com.coffeandit.transactionbff.dto.RequestTransactionDto;
 import com.coffeandit.transactionbff.dto.TransactionDto;
 import com.coffeandit.transactionbff.exceptions.TransactionNotFoundException;
@@ -12,9 +13,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -81,6 +86,29 @@ public class TransactionController {
     @PatchMapping(value = "/{id}/confimar")
     public Mono<TransactionDto> confirmarTransacao(@PathVariable("id") final String uuid) {
         return Mono.empty();
+    }
+
+
+    @GetMapping("/{agencia}/{conta}")
+    public Flux<List<TransactionDto>> buscarTransacoes(@PathVariable("agencia") final Long agencia,
+                                                       @PathVariable("conta") final Long conta) {
+
+        return transactionService.findAllAgenciaAndConta(agencia, conta);
+
+    }
+
+    @GetMapping("/sse/{agencia}/{conta}")
+    public Flux<ServerSentEvent<List<TransactionDto>>> buscarTransacoesSee(@PathVariable("agencia") final Long agencia,
+                                                                           @PathVariable("conta") final Long conta) {
+
+        return Flux.interval(Duration.ofSeconds(5))
+                .map(sequence -> ServerSentEvent.<List<TransactionDto>>builder()
+                        .id(String.valueOf(sequence))
+                        .event("transacoes")
+                        .data(transactionService.findByAgenciaAndConta(agencia, conta))
+                        .retry(Duration.ofSeconds(3))
+                        .build()
+                );
     }
 
 }
